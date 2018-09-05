@@ -1,23 +1,34 @@
-console.log('loaded');
-$('button').click(e => {
+var clicked = (e) => {
   e.preventDefault();
-  var btnType = $(e.target).attr('class');
-  var textArea = $('#textarea').val();
-  var number = parseInt($('#number').val());
+  // get HTML elements
+  var $textArea = document.getElementById('textarea');
+  var $number = document.getElementById('number');
+  var $response = document.getElementById('response');
+  // get data
+  var btnType = e.target.classList[0];
+  var textValue = $textArea.value;
+  var number = parseInt($number.value);
+  // build containers
   var items = [];
   var newItems = [];
   var response = '';
-  $('#response').html('');
+
+  // reset response
+  document.getElementById('response').innerHTML = '';
+
   // trim items and check for undefined
-  if (textArea !== '' && textArea !== undefined) {
-    items = textArea.split(/[.,;\/	]/g);
+  if (textValue !== '' && textValue !== undefined) {
+    items = textValue.split(/[.,;\/	]/g);
     items.forEach((e, i) => {
-      items[i] = e.replace(/^\s+|\s+$|\s+(?=\s)/g, '');
-      if (items[i] === '') {
+      items[i] = e.replace(/\s\s+/g, '');
+      items[i] = e.trim();
+      if (items[i] === '' || items[i] === ' ') {
         items.splice(i, 1);
-        response = '<p>I had to remove some empty spaces, sorry.</p>';
+        response = '<p>I had to remove some empty items or weird spaces, sorry.</p>';
+        i = i - 1;
       }
     });
+    $textArea.value = items.join(', ');
 
     // list has to match number of items
     if (items.length >= number) {
@@ -28,11 +39,10 @@ $('button').click(e => {
       }
       // excludes items from list
       if (btnType === 'btn_exclude') {
-        $('#textarea').val(items.join(', '));
+        $textArea.value = items.join(', ');
       }
 
       // build response
-
       response += `<h2>Your picked items are:</h2><p>${newItems.join(', ')}</p>`;
     } else {
       response += `<p>are you sure you want to pick ${number} items from a list ${items.length} items long?</p>`;
@@ -42,5 +52,21 @@ $('button').click(e => {
   }
 
   // insert into response
-  $('#response').append(response);
-});
+  var div = document.createElement('div');
+  div.innerHTML = response;
+  $response.appendChild(div);
+}
+
+document
+  .getElementById('btn_leave')
+  .addEventListener('click', (e) => {
+    clicked(e);
+  });
+
+document
+  .getElementById('btn_exclude')
+  .addEventListener('click', (e) => {
+    clicked(e);
+  });
+
+
